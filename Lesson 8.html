@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie & Local Storage Lab</title>
+</head>
+<body>
+    <h1>Cookie & Local Storage Lab</h1>
+    
+    <!-- Cookie Section -->
+    <h2>Cookie (Stored for 1 Day)</h2>
+    <p>User Name: <span id="cookieValue"></span></p>
+    <button onclick="setCookie()">Set Cookie</button>
+    <button onclick="deleteCookie()">Delete Cookie</button>
+    
+    <hr>
+    
+    <!-- Local Storage Section -->
+    <h2>Button Click Counter (Local Storage)</h2>
+    <p>Button has been clicked: <strong id="clickCount">0</strong> times</p>
+    <button onclick="incrementCounter()">Click Me!</button>
+    <button onclick="resetCounter()">Reset Counter</button>
+
+    <script>
+        // Storing Cookies for 1 day
+        
+        function setCookie() {
+            const name = "username";
+            const value = "cewkie";
+            const days = 1; // Store for 1 day
+            
+            // Calculating the expiry date
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            
+            // Set the cookie
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            
+            // Displaying it
+            displayCookie();
+        }
+        
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const cookies = document.cookie.split(';');
+            
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.indexOf(nameEQ) === 0) {
+                    return cookie.substring(nameEQ.length);
+                }
+            }
+            return null;
+        }
+        
+        function displayCookie() {
+            const username = getCookie("username");
+            document.getElementById("cookieValue").textContent = username || "No cookie set";
+        }
+        
+        function deleteCookie() {
+            document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            displayCookie();
+        }
+        
+        
+        // Local Storage
+        
+        function incrementCounter() {
+            // Getting current count from local storage
+            let count = localStorage.getItem("clickCount");
+            
+            if (count === null) {
+                count = 0;
+            }
+            
+            // Incrementing the count
+            count = parseInt(count) + 1;
+            
+            // Save back to local storage
+            localStorage.setItem("clickCount", count);
+            
+            // Displaying the updated count
+            displayCount();
+        }
+        
+        function displayCount() {
+            const count = localStorage.getItem("clickCount") || 0;
+            document.getElementById("clickCount").textContent = count;
+        }
+        
+        function resetCounter() {
+            localStorage.setItem("clickCount", 0);
+            displayCount();
+        }
+        
+        
+        // Loading data when page loads
+        displayCookie();
+        displayCount();
+    </script>
+</body>
+</html>
