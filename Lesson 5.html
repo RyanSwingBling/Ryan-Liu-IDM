@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Playlist Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: black;
+            margin-bottom: 30px;
+            font-size: 42px;
+        }
+
+        .controls {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+			background: #764ba2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .playlist-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            min-height: 200px;
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .playlist-header h2 {
+            color: black;
+            font-size: 28px;
+        }
+
+        .song-count {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .song-list {
+            list-style: none;
+        }
+
+        .song-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s;
+        }
+
+        .song-item:hover {
+            transform: translateX(5px);
+            background: #e9ecef;
+        }
+
+        .song-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .song-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Music Playlist Generator</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="genreSelect">Select Genre:</label>
+                <select id="genreSelect">
+                    <option value="all">All Genres</option>
+                    <option value="rock">Rock</option>
+                    <option value="pop">Pop</option>
+                    <option value="hiphop">Hip Hop</option>
+                    <option value="electronic">Electronic</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="songCount">Number of Songs:</label>
+                <input type="number" id="songCount" min="1" max="20" value="8">
+            </div>
+
+            <button onclick="generatePlaylist()">Generate Playlist</button>
+        </div>
+
+        <div class="playlist-container">
+            <div class="playlist-header">
+                <h2>Your Playlist</h2>
+                <span class="song-count" id="currentCount">0 songs</span>
+            </div>
+            <ul class="song-list" id="songList">
+                <li class="empty-message">Click "Generate Playlist" to create your mix!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+	
+        // Collection
+        const musicLibrary = {
+            rock: {
+                name: "Rock",
+                artists: {
+                    "Queen": {
+                        name: "Queen",
+                        songs: ["Bohemian Rhapsody", "We Will Rock You", "Don't Stop Me Now", "Somebody To Love", "Another One Bites The Dust"]
+                    },
+                    "The Beatles": {
+                        name: "The Beatles",
+                        songs: ["Hey Jude", "Let It Be", "Come Together", "Yesterday", "Here Comes The Sun"]
+                    },
+                    "Led Zeppelin": {
+                        name: "Led Zeppelin",
+                        songs: ["Stairway to Heaven", "Whole Lotta Love", "Kashmir", "Black Dog", "Rock and Roll"]
+                    }
+                }
+            },
+            pop: {
+                name: "Pop",
+                artists: {
+                    "Taylor Swift": {
+                        name: "Taylor Swift",
+                        songs: ["Shake It Off", "Blank Space", "Anti-Hero", "Love Story", "You Belong With Me"]
+                    },
+                    "Ed Sheeran": {
+                        name: "Ed Sheeran",
+                        songs: ["Shape of You", "Perfect", "Thinking Out Loud", "Photograph", "Castle on the Hill"]
+                    },
+                    "Ariana Grande": {
+                        name: "Ariana Grande",
+                        songs: ["Thank U Next", "7 Rings", "No Tears Left to Cry", "Problem", "Break Free"]
+                    }
+                }
+            },
+            hiphop: {
+                name: "Hip Hop",
+                artists: {
+                    "Kendrick Lamar": {
+                        name: "Kendrick Lamar",
+                        songs: ["HUMBLE.", "DNA.", "Alright", "Money Trees", "Swimming Pools"]
+                    },
+                    "Drake": {
+                        name: "Drake",
+                        songs: ["God's Plan", "One Dance", "Hotline Bling", "In My Feelings", "Started From The Bottom"]
+                    },
+                    "Eminem": {
+                        name: "Eminem",
+                        songs: ["Lose Yourself", "Without Me", "The Real Slim Shady", "Stan", "Rap God"]
+                    }
+                }
+            },
+            electronic: {
+                name: "Electronic",
+                artists: {
+                    "Daft Punk": {
+                        name: "Daft Punk",
+                        songs: ["Get Lucky", "One More Time", "Harder Better Faster Stronger", "Around the World", "Digital Love"]
+                    },
+                    "Calvin Harris": {
+                        name: "Calvin Harris",
+                        songs: ["Summer", "Feel So Close", "This Is What You Came For", "Sweet Nothing", "Miracle"]
+                    },
+                    "The Chainsmokers": {
+                        name: "The Chainsmokers",
+                        songs: ["Closer", "Don't Let Me Down", "Something Just Like This", "Roses", "Paris"]
+                    }
+                }
+            }
+        };
+
+        function generatePlaylist() {
+            const selectedGenre = document.getElementById('genreSelect').value;
+            const songCount = parseInt(document.getElementById('songCount').value);
+            
+            // Collecting all available songs based on selected genre
+            let allSongs = [];
+            
+            if (selectedGenre === 'all') {
+                // Getting songs from all genres
+                for (let genreKey in musicLibrary) {
+                    const genre = musicLibrary[genreKey];
+                    for (let artistKey in genre.artists) {
+                        const artist = genre.artists[artistKey];
+                        for (let song of artist.songs) {
+                            allSongs.push({
+                                title: song,
+                                artist: artist.name,
+                                genre: genre.name
+                            });
+                        }
+                    }
+                }
+            } else {
+                // Getting songs from selected genre only
+                const genre = musicLibrary[selectedGenre];
+                for (let artistKey in genre.artists) {
+                    const artist = genre.artists[artistKey];
+                    for (let song of artist.songs) {
+                        allSongs.push({
+                            title: song,
+                            artist: artist.name,
+                            genre: genre.name
+                        });
+                    }
+                }
+            }
+
+            // Shuffling and selecting songs without duplication
+            const playlist = getRandomSongs(allSongs, songCount);
+            
+            // Displaying the playlist
+            displayPlaylist(playlist);
+        }
+
+        function getRandomSongs(songsArray, count) {
+            // Creating a copy to avoid modifying original
+            const availableSongs = [...songsArray];
+            const selectedSongs = [];
+            
+            // Getting random songs without duplication
+            const actualCount = Math.min(count, availableSongs.length);
+            
+            for (let i = 0; i < actualCount; i++) {
+                const randomIndex = Math.floor(Math.random() * availableSongs.length);
+                selectedSongs.push(availableSongs[randomIndex]);
+                // Removing selected songs to avoid duplication
+                availableSongs.splice(randomIndex, 1);
+            }
+            
+            return selectedSongs;
+        }
+
+        function displayPlaylist(playlist) {
+            const songList = document.getElementById('songList');
+            const currentCount = document.getElementById('currentCount');
+            
+            if (playlist.length === 0) {
+                songList.innerHTML = '<li class="empty-message">No songs available for this selection!</li>';
+                currentCount.textContent = '0 songs';
+                return;
+            }
+            
+            // Clearing the current playlist
+            songList.innerHTML = '';
+            
+            // Adding each song to the list
+            playlist.forEach((song, index) => {
+                const songItem = document.createElement('li');
+                songItem.className = 'song-item';
+                songItem.innerHTML = `
+                    <div class="song-title">${index + 1}. ${song.title}</div>
+                    <div class="song-info">
+                        ${song.artist}
+                        <span class="genre-tag">${song.genre}</span>
+                    </div>
+                `;
+                songList.appendChild(songItem);
+            });
+            
+            // Updating the count
+            currentCount.textContent = `${playlist.length} song${playlist.length !== 1 ? 's' : ''}`;
+        }
+    </script>
+</body>
+</html>
